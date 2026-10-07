@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radio Atlazalpan - Oficial</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: #0b0b0b;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        /* MENÚ LATERAL - Desplazamiento limpio y discreto */
+        .sidebar {
+            width: 260px;
+            background-color: #121212;
+            position: fixed;
+            height: 100%;
+            max-height: 100vh;
+            top: 0;
+            left: 0;
+            padding: 25px 20px;
+            border-right: 1px solid rgba(255, 204, 0, 0.15);
+            z-index: 100;
+            overflow-y: auto;
+            transition: transform 0.3s ease-in-out;
+            
+            scrollbar-width: thin;
+            scrollbar-color: #333 #121212;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 5px;
+        }
+        .sidebar::-webkit-scrollbar-track {
+            background: #121212;
+        }
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #2a2a2a;
+            border-radius: 10px;
+        }
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: #ffcc00;
+        }
+
+        .sidebar.hidden {
+            transform: translateX(-100%);
+        }
+
+        .sidebar-logo {
+            font-size: 16px;
+            font-weight: 800;
+            color: #ffcc00;
+            margin-bottom: 40px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-shadow: 0 0 10px rgba(255, 204, 0, 0.4);
+        }
+        .sidebar-logo::before {
+            content: '';
+            width: 10px;
+            height: 10px;
+            background-color: #ff3333;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #ff3333;
+        }
+        .nav-category {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #888888;
+            letter-spacing: 1px;
+            margin: 20px 0 10px 10px;
+            font-weight: bold;
+        }
+        .sidebar a {
+            padding: 12px 15px;
+            text-decoration: none;
+            font-size: 14px;
+            color: #cccccc;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            cursor: pointer;
+            margin-bottom: 4px;
+        }
+        .sidebar a:hover, .sidebar a.active {
+            background-color: rgba(255, 204, 0, 0.15);
+            color: #ffcc00;
+        }
+        .sidebar a.active {
+            border-left: 3px solid #ffcc00;
+        }
+
+        /* HEADER SUPERIOR */
+        .top-header {
+            margin-left: 260px;
+            height: 70px;
+            background-color: #121212;
+            border-bottom: 1px solid rgba(255, 204, 0, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 35px;
+            position: fixed;
+            top: 0;
+            width: calc(100% - 260px);
+            z-index: 99;
+            transition: all 0.3s ease-in-out;
+        }
+        .top-header.expanded {
+            margin-left: 0;
+            width: 100%;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .menu-toggle-btn {
+            background: none;
+            border: 1px solid #333333;
+            background-color: #1a1a1a;
+            color: #ffcc00;
+            font-size: 16px;
+            padding: 6px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .menu-toggle-btn:hover {
+            border-color: #ffcc00;
+            background-color: #222222;
+        }
+
+        .search-box {
+            background-color: #1a1a1a;
+            border: 1px solid #333333;
+            border-radius: 20px;
+            padding: 8px 16px;
+            width: 260px;
+            color: #fff;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+        .search-box:focus {
+            outline: none;
+            border-color: #ffcc00;
+            background-color: #222222;
+            width: 310px;
+            box-shadow: 0 0 8px rgba(255, 204, 0, 0.3);
+        }
+        .header-slogan {
+            font-size: 12px;
+            color: #ffcc00;
+            font-weight: 700;
+            letter-spacing: 1px;
+            background: rgba(255, 204, 0, 0.1);
+            padding: 5px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 204, 0, 0.3);
+        }
+
+        /* CONTENIDO PRINCIPAL */
+        .main-content {
+            margin-left: 260px;
+            margin-top: 70px;
+            padding: 30px 40px;
+            padding-bottom: 130px;
+            transition: margin-left 0.3s ease-in-out;
+        }
+        .main-content.expanded {
+            margin-left: 0;
+        }
+
+        /* VISTAS (BLOQUES POR SEPARADO) */
+        .view-section {
+            display: none;
+        }
+        .view-section.active-view {
+            display: block;
+        }
+
+        /* TÍTULOS DE SECCIÓN MÁS LIMPIOS Y ARRIBA */
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            border-bottom: 1px solid rgba(255, 204, 0, 0.2);
+            padding-bottom: 12px;
+        }
+        .section-header h2 {
+            font-size: 22px;
+            color: #ffcc00;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* BANNER SEÑAL EN VIVO */
+        .hero-banner {
+            background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+            border: 1px solid rgba(255, 204, 0, 0.3);
+            border-radius: 16px;
+            padding: 35px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        }
+        .hero-banner h1 {
+            margin: 0 0 10px 0;
+            color: #ffffff;
+            font-size: 28px;
+            font-weight: 800;
+        }
+        .hero-banner p {
+            color: #aaaaaa;
+            margin: 0;
+            font-size: 15px;
+        }
+
+        /* CUADRÍCULA DE TARJETAS */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 25px;
+        }
+        .card {
+            background-color: #141414;
+            border: 1px solid #222222;
+            border-radius: 14px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .card:hover {
+            transform: translateY(-6px);
+            border-color: #ffcc00;
+            box-shadow: 0 15px 35px rgba(255, 204, 0, 0.18);
+        }
+        .card-img-box {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            background: linear-gradient(135deg, #2b1d00, #121212);
+            border-bottom: 1px solid #222;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .card-img-box::before {
+            content: '🎤';
+            font-size: 32px;
+            opacity: 0.6;
+        }
+        .card-body {
+            padding: 16px;
+            text-align: left;
+        }
+        .card-body strong {
+            display: block;
+            font-size: 14px;
+            color: #ffffff;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+        .card-body small {
+            color: #aaaaaa;
+            font-size: 12px;
+        }
+
+        /* BARRA REPRODUCTOR INFERIOR */
+        .player-bar {
+            position: fixed;
+            bottom: 0;
+            left: 260px;
+            width: calc(100% - 260px);
+            background-color: #121212;
+            border-top: 2px solid #ffcc00;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 30px;
+            box-sizing: border-box;
+            z-index: 1000;
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.9);
+            transition: all 0.3s ease-in-out;
+        }
+        .player-bar.expanded {
+            left: 0;
+            width: 100%;
+        }
+
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            width: 30%;
+        }
+        .player-thumb {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #ffcc00, #cca300);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: #0b0b0b;
+            font-weight: 800;
+        }
+        .live-tag {
+            color: #ff3333;
+            font-weight: 800;
+            font-size: 9px;
+            letter-spacing: 1.5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .live-tag::before {
+            content: '';
+            width: 5px;
+            height: 5px;
+            background-color: #ff3333;
+            border-radius: 50%;
+            box-shadow: 0 0 6px #ff3333;
+        }
+        .song-title {
+            font-size: 13px;
+            color: #ffffff;
+            font-weight: 600;
+            margin-top: 2px;
+        }
+        
+        .player-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            width: 40%;
+        }
+        .player-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .player-controls button {
+            background: none;
+            border: none;
+            color: #aaaaaa;
+            font-size: 15px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .player-controls button:hover {
+            color: #ffcc00;
+        }
+        .play-btn {
+            background: #ffcc00 !important;
+            color: #0b0b0b !important;
+            border-radius: 50%;
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px !important;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(255, 204, 0, 0.4);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- MENÚ LATERAL -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-logo">Radio Atlazalpan</div>
+        
+        <div class="nav-category">Menú Principal</div>
+        <a class="nav-link active" data-target="view-home">🏠 Home</a>
+        <a class="nav-link" data-target="view-notas">📰 Notas</a>
+        <a class="nav-link" data-target="view-videos">🎬 Videos</a>
+        <a class="nav-link" data-target="view-galerias">🖼️ Galerías</a>
+        
+        <!-- BOTÓN DE TV EN VIVO -->
+        <a href="https://tu-enlace-de-tv.com" target="_blank">📺 Radio Atlazalpan TV En Vivo</a>
+
+        <div class="nav-category">Contenido</div>
+        <a class="nav-link" data-target="view-programas">🎙️ Programas</a>
+        <a class="nav-link" data-target="view-locutores">👥 Locutores</a>
+        <a class="nav-link" data-target="view-artistas">🎵 Artistas Invitados</a>
+        <a class="nav-link" data-target="view-podcasts">🎧 Podcasts</a>
+    </div>
+
+    <!-- ENCABEZADO SUPERIOR -->
+    <div class="top-header" id="topHeader">
+        <div class="header-left">
+            <button class="menu-toggle-btn" id="menuToggle">☰</button>
+            <input type="text" class="search-box" placeholder="Buscar pistas, artistas, notas...">
+        </div>
+        <div class="header-slogan">RADIO ATLAZALPAN EN VIVO</div>
+    </div>
+
+    <!-- CONTENEDOR PRINCIPAL DE VISTAS -->
+    <div class="main-content" id="mainContent">
+        
+        <!-- VISTA 1: HOME -->
+        <div id="view-home" class="view-section active-view">
+            <div class="hero-banner">
+                <h1>Señal En Vivo 24/7</h1>
+                <p>¡Se escucha a todo volumen! Conectando desde San Pablo Atlazalpan, Chalco.</p>
+            </div>
+            <div class="section-header">
+                <h2>Destacados del Día</h2>
+            </div>
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-img-box"></div>
+                    <div class="card-body">
+                        <strong>Sonido Sonidero 2010</strong>
+                        <small>Transmisión Principal</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VISTA 2: NOTAS -->
+        <div id="view-notas" class="view-section">
+            <div class="section-header">
+                <h2>Notas y Artículos</h2>
+            </div>
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-img-box"></div>
+                    <div class="card-body">
+                        <strong>Noticias del Barrio</strong>
+                        <small>Entérate de los próximos eventos</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VISTA 3: VIDEOS -->
+        <div id="view-videos" class="view-section">
+            <div class="section-header">
+                <h2>Videos Recientes</h2>
+            </div>
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-img-box"></div>
+                    <div class="card-body">
+                        <strong>Sesiones en Vivo</strong>
+                        <small>Revisa nuestras transmisiones pasadas</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VISTA 4: GALERÍAS -->
+        <div id="view-galerias" class="view-section">
+            <div class="section-header">
+                <h2>Galerías de Fotos</h2>
+            </div>
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-img-box"></div>
+                    <div class="card-body">
+                        <strong>Eventos y Presentaciones</strong>
+                        <small>Momentos capturados en cabina</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VISTA 5: PROGRAMAS -->
+        <div id="view-programas" class="view-section">
+            <div class="section-header">
+                <h2>Nuestros Programas</h2>
+            </div>
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-img-box"></div>
+                    <div class="card-body">
+                        <strong>Cumbia y Barrio</strong>
+                        <small>La mejor selección musical</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VISTA 6: LOCUTORES -->
+        <div id="view-locutores" class="view-section">
+            <div class="section-header">
+                <h2>Locutores Oficiales</h2>
+            </div>
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-img-box"></div>
+                    <div class="card-body">
+                        <strong>Cabina Principal</strong>
+                        <small>Equipo de locución</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VISTA 7: ARTISTAS INVITADOS -->
+        <div id="view-artistas" class="view-section">
+            <div class="section-header">
+                <h2>Artistas Invitados en Cabina</h2>
+            </div>
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-img-box"></div>
+                    <div class="card-body">
+                        <strong>Sonido Sonidero 2010</strong>
+                        <small>Entrevista y presentación especial</small>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-img-box"></div>
+                    <div class="card-body">
+                        <strong>Especial de Cumbia Sonidera</strong>
+                        <small>Agrupaciones invitadas del barrio</small>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-img-box"></div>
+                    <div class="card-body">
+                        <strong>Maestros de la Guaracha</strong>
+                        <small>Sesión en vivo desde el estudio</small>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-img-box"></div>
+                    <div class="card-body">
+                        <strong>Leyendas del Sonido</strong>
+                        <small>Charlas exclusivas y trayectoria</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VISTA 8: PODCASTS -->
+        <div id="view-podcasts" class="view-section">
+            <div class="section-header">
+                <h2>Podcasts Exclusivos</h2>
+            </div>
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-img-box"></div>
+                    <div class="card-body">
+                        <strong>Entrevistas del Recuerdo</strong>
+                        <small>Escúchalos cuando quieras</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- BARRA REPRODUCTOR INFERIOR -->
+    <div class="player-bar" id="playerBar">
+        <div class="player-info">
+            <div class="player-thumb">EN VIVO</div>
+            <div>
+                <span class="live-tag">TRANSMITIENDO</span>
+                <span class="song-title">Radio Atlazalpan - Señal Directa</span>
+            </div>
+        </div>
+        
+        <div class="player-center">
+            <div class="player-controls">
+                <button>⏮</button>
+                <button class="play-btn">▶</button>
+                <button>⏭</button>
+            </div>
+        </div>
+
+        <div class="player-extra" style="color: #ffcc00; font-weight: 700; font-size: 13px;">
+            <span>🔴 EN DIRECTO</span>
+        </div>
+    </div>
+
+    <!-- SCRIPT DE CONTROL Y NAVEGACIÓN -->
+    <script>
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const topHeader = document.getElementById('topHeader');
+        const mainContent = document.getElementById('mainContent');
+        const playerBar = document.getElementById('playerBar');
+
+        // Ocultar/Mostrar Menú Lateral
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('hidden');
+            topHeader.classList.toggle('expanded');
+            mainContent.classList.toggle('expanded');
+            playerBar.classList.toggle('expanded');
+        });
+
+        // Cambio de Vistas Dinámico al hacer clic en el Menú
+        const navLinks = document.querySelectorAll('.nav-link');
+        const viewSections = document.querySelectorAll('.view-section');
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                navLinks.forEach(item => item.classList.remove('active'));
+                viewSections.forEach(section => section.classList.remove('active-view'));
+                
+                link.classList.add('active');
+                
+                const targetId = link.getAttribute('data-target');
+                document.getElementById(targetId).classList.add('active-view');
+            });
+        });
+    </script>
+
+</body>
+</html>
